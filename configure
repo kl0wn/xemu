@@ -6281,7 +6281,7 @@ EOF
   if ! compile_object ""; then
     hvf='no'
   else
-    hvf='yes'
+    #hvf='yes'
     QEMU_LDFLAGS="-framework Hypervisor $QEMU_LDFLAGS"
   fi
 fi

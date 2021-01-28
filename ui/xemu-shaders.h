@@ -20,7 +20,7 @@
 #ifndef XEMU_SHADERS_H
 #define XEMU_SHADERS_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <epoxy/gl.h>
 
 #include "stb_image.h"

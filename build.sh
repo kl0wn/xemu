@@ -28,8 +28,8 @@ package_macos() {
     mkdir -p dist/xemu.app/Contents/Frameworks
     dylibbundler -cd -of -b -x dist/xemu.app/Contents/MacOS/xemu \
         -d dist/xemu.app/Contents/Frameworks/ \
-        -p '@executable_path/../Frameworks/'
-
+        -p '@executable_path/../Frameworks/' \
+	-i /usr/lib/
     # Copy in runtime resources
     mkdir -p dist/xemu.app/Contents/Resources
     cp -r data dist/xemu.app/Contents/Resources
@@ -120,12 +120,12 @@ case "$(uname -s)" in # Adjust compilation options based on platform
         ;;
     Darwin)
         echo 'Compiling for MacOS...'
-        sys_cflags='-march=ivybridge'
         sys_ldflags='-headerpad_max_install_names'
         sys_opts='--disable-cocoa'
         # necessary to find libffi, which is required by gobject
         export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}/usr/local/opt/libffi/lib/pkgconfig"
-        export PKG_CONFIG_PATH="/usr/local/opt/openssl@1.1/lib/pkgconfig:${PKG_CONFIG_PATH}"
+        export PKG_CONFIG_PATH="/opt/homebrew/opt/openssl@1.1/lib/pkgconfig:${PKG_CONFIG_PATH}"
+        export PKG_CONFIG_PATH="/opt/homebrew/opt/zlib/lib/pkgconfig:${PKG_CONFIG_PATH}"
         echo $PKG_CONFIG_PATH
         # macOS needs greadlink for a GNU compatible version of readlink
         if readlink=$(command -v greadlink); then
@@ -162,6 +162,7 @@ set -x # Print commands from now on
     --enable-trace-backends="nop" \
     --enable-sdl \
     --enable-opengl \
+    --disable-hvf \
     --disable-curl \
     --disable-vnc \
     --disable-vnc-sasl \

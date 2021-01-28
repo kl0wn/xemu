@@ -25,7 +25,7 @@
 #ifndef XEMU_INPUT_H
 #define XEMU_INPUT_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 enum controller_state_buttons_mask {
     CONTROLLER_BUTTON_A          = (1 << 0),

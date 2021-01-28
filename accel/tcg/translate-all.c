@@ -1067,13 +1067,14 @@ static inline void *alloc_code_gen_buffer(void)
 static inline void *alloc_code_gen_buffer(void)
 {
     int prot = PROT_WRITE | PROT_READ | PROT_EXEC;
-    int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+    int flags = MAP_JIT | MAP_PRIVATE | MAP_ANONYMOUS;
     size_t size = tcg_ctx->code_gen_buffer_size;
     void *buf;
 
     buf = mmap(NULL, size, prot, flags, -1, 0);
     if (buf == MAP_FAILED) {
-        return NULL;
+        fprintf(stderr, "mmap failed: %d\n", errno);
+	return NULL;
     }
 
 #ifdef __mips__
@@ -1484,7 +1485,9 @@ static void do_tb_phys_invalidate(TranslationBlock *tb, bool rm_from_page_list)
 
 static void tb_phys_invalidate__locked(TranslationBlock *tb)
 {
+    pthread_jit_write_protect_np(false);
     do_tb_phys_invalidate(tb, true);
+    pthread_jit_write_protect_np(true);
 }
 
 /* invalidate one TB
@@ -1674,6 +1677,7 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
                               target_ulong pc, target_ulong cs_base,
                               uint32_t flags, int cflags)
 {
+    pthread_jit_write_protect_np(false);
     CPUArchState *env = cpu->env_ptr;
     TranslationBlock *tb, *existing_tb;
     tb_page_addr_t phys_pc, phys_page2;
@@ -1910,6 +1914,7 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
         return existing_tb;
     }
     tcg_tb_insert(tb);
+    pthread_jit_write_protect_np(true);
     return tb;
 }
 

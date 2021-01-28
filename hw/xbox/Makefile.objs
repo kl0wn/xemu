@@ -9,3 +9,5 @@ obj-y += chihiro-usb.o
 
 obj-y += nv2a/
 obj-y += mcpx/
+
+xid.o-cflags := $(SDL_CFLAGS)

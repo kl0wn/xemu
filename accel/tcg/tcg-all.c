@@ -126,9 +126,12 @@ static int tcg_init(MachineState *ms)
 {
     TCGState *s = TCG_STATE(current_accel());
 
+    pthread_jit_write_protect_np(false);
     tcg_exec_init(s->tb_size * 1024 * 1024);
     cpu_interrupt_handler = tcg_handle_interrupt;
     mttcg_enabled = s->mttcg_enabled;
+
+    pthread_jit_write_protect_np(true);
     return 0;
 }
 

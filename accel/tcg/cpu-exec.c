@@ -359,6 +359,7 @@ static inline void tb_add_jump(TranslationBlock *tb, int n,
 {
     uintptr_t old;
 
+    pthread_jit_write_protect_np(false);
     assert(n < ARRAY_SIZE(tb->jmp_list_next));
     qemu_spin_lock(&tb_next->jmp_lock);
 
@@ -386,10 +387,12 @@ static inline void tb_add_jump(TranslationBlock *tb, int n,
                            "] index %d -> %p [" TARGET_FMT_lx "]\n",
                            tb->tc.ptr, tb->pc, n,
                            tb_next->tc.ptr, tb_next->pc);
+    pthread_jit_write_protect_np(true);
     return;
 
  out_unlock_next:
     qemu_spin_unlock(&tb_next->jmp_lock);
+    pthread_jit_write_protect_np(true);
     return;
 }
 
@@ -632,6 +635,7 @@ static inline void cpu_loop_exec_tb(CPUState *cpu, TranslationBlock *tb,
     uintptr_t ret;
     int32_t insns_left;
 
+    pthread_jit_write_protect_np(true);
     trace_exec_tb(tb, tb->pc);
     ret = cpu_tb_exec(cpu, tb);
     tb = (TranslationBlock *)(ret & ~TB_EXIT_MASK);
